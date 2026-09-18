@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground-rgb: 15, 23, 42;
+  --background-start-rgb: 248, 250, 252;
+  --background-end-rgb: 255, 255, 255;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: linear-gradient(
+      180deg,
+      rgba(241, 245, 249, 0.6) 0%,
+      rgba(248, 250, 252, 0.9) 200px,
+      #ffffff 100%
+    );
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Card Subtle 3D Elevation on Hover */
+.card-depth {
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 220ms cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 200ms ease;
+}
+
+.card-depth:hover {
+  transform: translateY(-4px);
+}
+
+/* Button Micro-Lift & Depth */
+.btn-depth {
+  transition: transform 150ms cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 150ms cubic-bezier(0.16, 1, 0.3, 1),
+              filter 150ms ease;
+}
+
+.btn-depth:hover {
+  transform: translateY(-1.5px);
+}
+
+.btn-depth:active {
+  transform: translateY(0.5px);
+}
+
+/* Image Subtle Zoom Effect */
+.img-zoom {
+  transition: transform 350ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.group:hover .img-zoom {
+  transform: scale(1.035);
+}
+
+/* Glassmorphism Surface */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* Subtle focus ring styling for accessibility */
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: none;
+}
