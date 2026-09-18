@@ -6,8 +6,16 @@ export interface AuthRequest extends Request {
   user?: IUser;
 }
 
+const getJwtSecret = (): string => {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET must be configured before authentication can be used');
+  }
+  return secret;
+};
+
 export const generateToken = (user: IUser): string => {
-  const secret = process.env.JWT_SECRET || 'super_secret_jwt_key_smart_rent_connect_2026';
+  const secret = getJwtSecret();
   return jwt.sign(
     {
       id: user._id,
@@ -41,7 +49,7 @@ export const protect = async (req: AuthRequest, res: Response, next: NextFunctio
   }
 
   try {
-    const secret = process.env.JWT_SECRET || 'super_secret_jwt_key_smart_rent_connect_2026';
+    const secret = getJwtSecret();
     const decoded = jwt.verify(token, secret) as { id: string };
 
     const user = await User.findById(decoded.id);

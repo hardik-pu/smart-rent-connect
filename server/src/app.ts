@@ -15,16 +15,16 @@ import adminRoutes from './routes/admin.routes';
 
 const app: Application = express();
 
+const isProduction = process.env.NODE_ENV === 'production';
 const configuredOrigins = (process.env.CORS_ORIGIN || process.env.CLIENT_URL || '')
   .split(',')
   .map(o => o.trim())
   .filter(Boolean);
 
-const defaultAllowedOrigins = [
-  'http://localhost:3000',
-  'http://127.0.0.1:3000',
+const allowedOrigins = Array.from(new Set([
   ...configuredOrigins,
-];
+  ...(isProduction ? [] : ['http://localhost:3000', 'http://127.0.0.1:3000']),
+]));
 
 // Global Middleware
 app.use(
@@ -33,11 +33,8 @@ app.use(
       // Allow requests with no origin (e.g. mobile apps, curl, server-to-server health checks)
       if (!origin) return callback(null, true);
 
-      // Check if origin matches allowed origins or Vercel deployment domain pattern (*.vercel.app)
-      const isAllowed =
-        defaultAllowedOrigins.includes(origin) ||
-        origin.endsWith('.vercel.app') ||
-        (process.env.NODE_ENV !== 'production' && origin.includes('localhost'));
+      // Production requests must come from an explicitly configured frontend origin.
+      const isAllowed = allowedOrigins.includes(origin);
 
       if (isAllowed) {
         callback(null, true);
