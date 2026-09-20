@@ -2,6 +2,10 @@
   "name": "smart-rent-connect",
   "version": "1.0.0",
   "description": "Smart Rent Connect - A Location-Based Rental House Finder",
+  "workspaces": [
+    "server",
+    "client"
+  ],
   "scripts": {
     "install:all": "npm install --prefix server && npm install --prefix client",
     "dev:server": "npm run --prefix server dev",
