@@ -13,6 +13,7 @@
     "build:server": "npm run --prefix server build",
     "build:client": "npm run --prefix client build",
     "build": "npm run build:server && npm run build:client",
+    "start": "npm run --prefix server start",
     "test": "npm run --prefix server test"
   },
   "keywords": [
