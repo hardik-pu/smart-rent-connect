@@ -67,18 +67,34 @@ export default function PropertyMap({
     ? validProperties[0]
     : null;
 
+  // Safe map center calculation
   const mapCenter = targetProperty && targetProperty.location?.coordinates
     ? {
-        lat: targetProperty.location.coordinates[1],
-        lng: targetProperty.location.coordinates[0],
+        lat: Number(targetProperty.location.coordinates[1]) || center.lat,
+        lng: Number(targetProperty.location.coordinates[0]) || center.lng,
       }
-    : center;
+    : {
+        lat: Number(center?.lat ?? 19.0760),
+        lng: Number(center?.lng ?? 72.8777),
+      };
 
-  // Compute bounding box for OpenStreetMap embed
+  // Compute bounding box for zero-key OpenStreetMap embed (requires no billing, no credit card)
   const delta = singleProperty ? 0.012 : 0.06;
   const bbox = `${mapCenter.lng - delta},${mapCenter.lat - delta},${mapCenter.lng + delta},${mapCenter.lat + delta}`;
   const osmEmbedUrl = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${mapCenter.lat},${mapCenter.lng}`;
+  
+  // Safe external Google Maps URL (opens in new tab without requiring any API key or Google Cloud billing)
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${mapCenter.lat},${mapCenter.lng}`;
+
+  // Optional: Google Maps API Key check (client-side safe)
+  // If no API key is provided or if it is empty, Google Maps embed is unavailable and gracefully falls back to OpenStreetMap
+  const googleMapsApiKey = typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY : undefined;
+  const hasGoogleMapsApiKey = Boolean(googleMapsApiKey && googleMapsApiKey.trim().length > 0);
+
+  // Determine embedded map source: Google Maps if key configured, otherwise resilient OpenStreetMap
+  const embeddedMapUrl = hasGoogleMapsApiKey
+    ? `https://www.google.com/maps/embed/v1/place?key=${encodeURIComponent(googleMapsApiKey!)}&q=${mapCenter.lat},${mapCenter.lng}&zoom=${zoom}`
+    : osmEmbedUrl;
 
   return (
     <div className={`relative w-full h-full min-h-[380px] bg-slate-100 rounded-2xl overflow-hidden border border-slate-200 shadow-sm flex flex-col ${className}`}>
@@ -98,14 +114,14 @@ export default function PropertyMap({
           target="_blank"
           rel="noopener noreferrer"
           className="bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-xl text-[10px] font-bold text-blue-600 hover:text-blue-700 shadow-sm border border-slate-200 flex items-center gap-1 transition-colors"
-          title="Open location in Google Maps"
+          title="Open exact GPS coordinates in Google Maps (Free browser view, no API key needed)"
         >
           <ExternalLink className="w-3 h-3" />
           <span>Google Maps</span>
         </a>
         <div className="bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-xl text-[10px] font-bold text-slate-500 shadow-sm border border-slate-200 hidden sm:flex items-center gap-1">
           <Navigation className="w-3 h-3 text-emerald-500" />
-          <span>Live Map</span>
+          <span>{hasGoogleMapsApiKey ? 'Google Maps (Key Active)' : 'OpenStreetMap (No API Key Required)'}</span>
         </div>
       </div>
 
@@ -116,7 +132,7 @@ export default function PropertyMap({
           width="100%"
           height="100%"
           className="w-full h-full border-0"
-          src={osmEmbedUrl}
+          src={embeddedMapUrl}
           loading="lazy"
         />
 
